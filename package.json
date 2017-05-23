@@ -1,0 +1,12 @@
+{
+  "name": "alpinebits-developers-kit",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "mocha \"test/**/test*.js\""
+  },
+  "license": "Creative Commons Attribution 3.0 Unported License",
+  "devDependencies": {
+    "mocha": "^3.4.1"
+  }
+}
