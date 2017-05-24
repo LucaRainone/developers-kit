@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-     AlpineBits 2014-04
-     http://www.alpinebits.org/
-
-     sample message file
-
-     changelog:
-     v. 2014-04 1.0
+WARNING: This is a NOT valid Alpinebits XML. It's only for test purpose
 -->
 
 <OTA_HotelAvailNotifRQ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -19,7 +13,7 @@
 
     <AvailStatusMessages HotelCode="123" HotelName="Frangart Inn">
 
-        <AvailStatusMessage BookingLimit="1">
+        <AvailStatusMessage BookingLimit="1"> <!-- missing BookingLimitMessageType here -->
             <StatusApplicationControl Start="2010-08-01" End="2010-08-10" InvTypeCode="double" InvCode="101S" />
         </AvailStatusMessage>
 
