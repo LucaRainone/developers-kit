@@ -1026,7 +1026,7 @@
                             <xs:complexType>
                               <xs:sequence>
 
-                                <xs:element name="GuestRoom" minOccurs="1" maxOccurs="unbounded">
+                                <xs:element name="GuestRoom" minOccurs="0" maxOccurs="unbounded">
                                   <xs:complexType>
                                     <xs:sequence>
 
