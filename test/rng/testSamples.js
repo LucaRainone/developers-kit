@@ -7,7 +7,7 @@ describe("All samples", () => {
 	let dir = config.filesDir + "samples/";
 	fs.readdirSync(dir).forEach(file => {
 		if (!path.extname(file) === ".xml") return;
-		it(file, (done) => {
+		it("Validate against " + path.basename(config.schemaRNG) + " " + file, (done) => {
 			validate(dir  + file, config.schemaRNG).then(done).catch(done);
 		})
 	});
