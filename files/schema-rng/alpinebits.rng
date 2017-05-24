@@ -111,7 +111,10 @@
           <rng:element name="UniqueID">
 
             <rng:attribute name="Type">
-              <rng:value type="string">16</rng:value>
+              <rng:choice>
+                <rng:value type="string">16</rng:value>
+                <rng:value type="string">35</rng:value>
+              </rng:choice>
             </rng:attribute>
             <rng:attribute name="ID"/> <!-- an ID is required by OTA, we ignore the value -->
             <rng:attribute name="Instance">
