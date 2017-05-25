@@ -5,7 +5,9 @@ const validate        = config.validate.againstXSD;
 const fecthSchemaFile = require('./lib/fetchSchemaFile');
 
 describe("All samples", () => {
+
 	let dir = config.filesDir + "samples/";
+
 	fs.readdirSync(dir).forEach(file => {
 
 		if (path.extname(file) !== ".xml") return;
