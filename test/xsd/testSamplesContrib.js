@@ -6,7 +6,7 @@ const validate = config.validate.againstXSD;
 describe("All samples contributors", () => {
 	let dir = config.filesDir + "samples-contrib/";
 	fs.readdirSync(dir).forEach(file => {
-		if (!path.extname(file) === ".xml") return;
+		if (path.extname(file) !== ".xml") return;
 		it("Validate against " + path.basename(config.schemaXSD) + " " + file, (done) => {
 			validate(dir + file, config.schemaXSD).then(done).catch(done);
 		})

@@ -8,7 +8,7 @@ describe("All samples contrib", () => {
 	let dir = config.filesDir + "samples-contrib/";
 	fs.readdirSync(dir).forEach(file => {
 
-		if (!path.extname(file) === ".xml") return;
+		if (path.extname(file) !== ".xml") return;
 
 		let schemaFile = fecthSchemaFile(dir + file);
 
