@@ -1327,7 +1327,7 @@
 
                     <rng:element name="GuestRooms">
                       
-                      <rng:oneOrMore>
+                      <rng:zeroOrMore>
                         <rng:choice>
 
                           <!-- basic content + basic descriptions + optionally additional description -->
@@ -1580,7 +1580,7 @@
                           </rng:element>
 
                         </rng:choice>
-                      </rng:oneOrMore>
+                      </rng:zeroOrMore>
                       
                     </rng:element>
                 </rng:element>
