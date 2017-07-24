@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- 
-     AlpineBits 2015-07b
+     AlpineBits 2017-10
      http://www.alpinebits.org/
 
      W3C XML Schema file
 
      changelog:
+
+
+    v. 2017-10  1.0 -  FreeRooms:       OTA_HotelAvailNotifRQ -> UniqueID (added allowed value to attribute Type, by Luca Rainone)
+                       FreeRooms:       OTA_HotelAvailNotifRQ -> AvailStatusMessages -> ...  -> StatusApplicationControl (added new mandatory attribute BookingThreshold)
+
+                       GuestRequests:   OTA_ResRetrieveRS -> ReservationsList -> ... -> RatePlan (added element Commission)
+                       GuestRequests:   OTA_ResRetrieveRS -> ReservationsList -> ... -> CardNumber (added attributes EncryptedValue and EncryptionMethod) 
+
+                       SimplePackages section removed
+
+                       Inventory has become Inventory/Basic and Inventory/HotelInfo (Push):
+                                        OTA_HotelDescriptiveContentNotifRQ (major changes, one being that empty GuestRooms elements are now allowed by Luca Rainone)
+
+                       Inventory/HotelInfo (Pull) added
+ 
+                       RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> BookingRules -> ... -> LengthOfStay (added allowed values to attribute MinMaxMessageType)
+                       RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> Supplements -> Supplement (added element PrerequisiteInventory)
+                       RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> Supplements -> Supplement -> Description (major changes)
+                       RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> Offers -> Offer (major changes)
+                       RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> Description (major changes)
+                       RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> ... -> BaseByGuestAmt (NumberOfGuests and Type are optional now to allow static rates)
+
+                       BaseRates section added
 
     v. 2015-07b 1.4 - weaken the schema for Inventory (to prepare for upcoming release that will support Inventory deltas):
 
@@ -23,7 +46,7 @@
                       FreeRooms:     OTA_HotelAvailNotifRQ -> AvailStatusMessages -> AvailStatusMessage -> StatusApplicationControl -> InvTypeCode
                       GuestRequests: OTA_ResRetrieveRS -> ReservationList -> HotelReservation -> RoomStays -> RoomStay -> RoomTypes > RoomType -> RoomTypeCode
                       Inventory:     OTA_HotelDescriptiveContentNotifRQ -> HotelDescriptiveContents -> HotelDescriptiveContent -> FacilityInfo -> GuestRooms -> GuestRoom -> Code
-                      RatePlan:      OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> BookingRules -> BookingRules -> Code
+                      RatePlan:      OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> BookingRules -> BookingRule -> Code
                       RatePlan:      OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> Rates -> Rate -> InvTypeCode
 
                       (derived from Lukas Braun's pull request)
@@ -200,6 +223,7 @@
                     </xs:simpleType>
                   </xs:attribute>
                   <xs:attribute name="BookingLimit" type="def_int_ge0"/>
+                  <xs:attribute name="BookingThreshold" type="def_int_ge0"/>
                 </xs:complexType>
               </xs:element>
 
@@ -372,6 +396,28 @@
                                           <xs:complexType>
                                             <xs:sequence>
 
+                                              <!-- HotelReservation > RoomStays > RoomStay > RatePlans > RatePlan > Commission {0,1} -->
+
+                                              <xs:element name="Commission" minOccurs="0">
+                                                <xs:complexType>
+                                                  <xs:sequence>
+                                                    <xs:element name="CommissionPayableAmount" minOccurs="0">
+                                                      <xs:complexType>
+                                                        <xs:attribute name="Amount" type="def_decimal_ge0"/>
+                                                        <xs:attribute name="CurrencyCode">
+                                                          <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                              <xs:enumeration value="EUR"/>
+                                                            </xs:restriction>
+                                                          </xs:simpleType>
+                                                        </xs:attribute>
+                                                      </xs:complexType>
+                                                    </xs:element>
+                                                  </xs:sequence>
+                                                  <xs:attribute name="Percent" type="def_int_ge0"/>
+                                                </xs:complexType>
+                                              </xs:element>
+
                                               <!-- HotelReservation > RoomStays > RoomStay > RatePlans > RatePlan > MealsIncluded {0,1} -->
 
                                               <xs:element name="MealsIncluded" minOccurs="0">
@@ -470,13 +516,17 @@
                                                       <xs:complexType>
                                                         <xs:sequence>
                                                           <xs:element name="CardHolderName" type="def_nonempty_string"/>
+
                                                           <xs:element name="CardNumber">
                                                             <xs:complexType>
                                                               <xs:sequence>
-                                                                <xs:element name="PlainText" type="def_nonempty_string"/>
+                                                                <xs:element name="PlainText" type="def_nonempty_string" minOccurs="0"/>
                                                               </xs:sequence>
+                                                             <xs:attribute name="EncryptedValue" type="def_nonempty_string"/>
+                                                             <xs:attribute name="EncryptionMethod" type="def_nonempty_string"/>
                                                             </xs:complexType>
                                                           </xs:element>
+
                                                         </xs:sequence>
                                                         <xs:attribute name="CardCode" use="required">
                                                           <xs:simpleType>
@@ -844,9 +894,7 @@
                               </xs:complexType>
                             </xs:element>
 
-
                             <xs:element name="BasicPropertyInfo"/>
-
 
                           </xs:sequence>
                         </xs:complexType>
@@ -1002,7 +1050,7 @@
 
 
   <!-- ******************************************************************************* -->
-  <!-- * Inventory                                                                     -->
+  <!-- * Inventory/Basic and Inventory/HotelInfo (Push)                                -->
   <!-- ******************************************************************************* -->
 
   <!-- Inventory: OTA_HotelDescriptiveContentNotifRQ -->
@@ -1010,6 +1058,280 @@
   <xs:element name="OTA_HotelDescriptiveContentNotifRQ">
     <xs:complexType>
       <xs:sequence>
+
+        <xs:group ref="def_hoteldescriptivecontents"/>
+
+      </xs:sequence>
+      <xs:attribute name="Version" use="required" />
+      <xs:attribute name="TimeStamp" />
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Inventory: OTA_HotelDescriptiveContentNotifRS -->
+  
+  <xs:element name="OTA_HotelDescriptiveContentNotifRS">
+    <xs:complexType>
+      <xs:group ref="def_generic_response"/>
+      <xs:attribute name="Version" use="required" />
+      <xs:attribute name="TimeStamp" />
+    </xs:complexType>
+  </xs:element>
+ 
+
+  <!-- ******************************************************************************* -->
+  <!-- * Inventory/HotelInfo (Pull)                                                    -->
+  <!-- ******************************************************************************* -->
+
+  <!-- Inventory: OTA_HotelDescriptiveInfoRQ -->
+
+  <xs:element name="OTA_HotelDescriptiveInfoRQ">
+    <xs:complexType>
+      <xs:sequence>
+
+        <xs:element name="HotelDescriptiveInfos" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+
+              <xs:element name="HotelDescriptiveInfo" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="HotelCode" type="def_nonempty_string"/>
+                  <xs:attribute name="HotelName" type="def_nonempty_string"/>
+                </xs:complexType>
+              </xs:element>
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:sequence>
+      <xs:attribute name="Version" use="required" />
+      <xs:attribute name="TimeStamp" />
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Inventory: OTA_HotelDescriptiveInfoRS -->
+  
+  <xs:element name="OTA_HotelDescriptiveInfoRS"> 
+    <xs:complexType>
+
+      <xs:choice>
+
+        <!-- choice: Errors {1} -->
+
+        <xs:element name="Errors">
+          <xs:complexType>
+            <xs:sequence>
+   
+              <!-- Errors > Error {1,} -->
+   
+              <xs:element name="Error" maxOccurs="unbounded">
+                <xs:complexType mixed="true">
+                  <xs:attribute name="Type" use="required">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value="13"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:attribute>
+                  <xs:attribute name="Code" use="required" type="def_int_ge0"/>
+                </xs:complexType>
+              </xs:element>
+   
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- choice: Success {1} + HotelDescriptiveContents {1} -->
+
+        <xs:sequence>
+          <xs:element name="Success"/>
+          <xs:group ref="def_hoteldescriptivecontents"/>
+        </xs:sequence>
+
+      </xs:choice>
+
+      <xs:attribute name="Version" use="required"/>
+      <xs:attribute name="TimeStamp"/>
+
+    </xs:complexType>
+  </xs:element>
+
+ 
+  <!-- ******************************************************************************* -->
+  <!-- * RatePlans                                                                     -->
+  <!-- ******************************************************************************* -->
+
+  <!-- RatePlans: OTA_HotelRatePlanNotifRQ -->
+
+  <xs:element name="OTA_HotelRatePlanNotifRQ">
+    <xs:complexType>
+      <xs:sequence>
+
+        <!-- UniqueID {0,1} -->
+
+        <xs:element name="UniqueID" minOccurs="0">
+          <xs:complexType>
+            <xs:attribute name="Type" use="required">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="16"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="ID" use="required" type="xs:string"/> <!-- an ID is required by OTA, we ignore the value -->
+            <xs:attribute name="Instance" use="required">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="CompleteSet"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- RatePlans {1} -->
+
+        <xs:group ref="def_rateplans"/>
+ 
+      </xs:sequence>
+      <xs:attribute name="Version" use="required"/>
+      <xs:attribute name="TimeStamp"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- RatePlans: OTA_HotelRatePlanNotifRS -->
+
+  <xs:element name="OTA_HotelRatePlanNotifRS">
+    <xs:complexType>
+      <xs:group   ref="def_generic_response"/>
+      <xs:attribute name="Version" use="required"/>
+      <xs:attribute name="TimeStamp"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <!-- ******************************************************************************* -->
+  <!-- * BaseRates                                                                     -->
+  <!-- ******************************************************************************* -->
+
+  <!-- BaseRates: OTA_HotelRatePlanRQ -->
+
+  <xs:element name="OTA_HotelRatePlanRQ">
+    <xs:complexType>
+      <xs:sequence>
+
+        <!-- RatePlans {1} -->
+ 
+        <xs:element name="RatePlans">
+          <xs:complexType>
+            <xs:sequence>
+
+              <!-- RatePlans > RatePlan {1} -->
+
+              <xs:element name="RatePlan">
+                <xs:complexType>
+                  <xs:sequence>
+
+                    <xs:choice maxOccurs="unbounded">
+
+                      <xs:element name="DateRange">
+                        <xs:complexType>
+                          <xs:attribute name="Start" type="def_date"/>
+                          <xs:attribute name="End"   type="def_date"/>
+                        </xs:complexType>
+                      </xs:element>
+
+                      <xs:element name="RatePlanCandidates">
+                        <xs:complexType>
+                          <xs:sequence>
+                            <xs:element name="RatePlanCandidate" maxOccurs="unbounded">
+                              <xs:complexType>
+                                <xs:attribute name="RatePlanCode" type="def_nonempty_string"/>
+                                <xs:attribute name="RatePlanID" type="def_nonempty_string"/>
+                              </xs:complexType>
+                            </xs:element>
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+
+                      <xs:element name="HotelRef">
+                        <xs:complexType>
+                          <xs:attribute name="HotelCode" type="def_nonempty_string"/>
+                          <xs:attribute name="HotelName" type="def_nonempty_string"/>
+                        </xs:complexType>
+                      </xs:element>
+
+                    </xs:choice>
+
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:sequence>
+      <xs:attribute name="Version" use="required"/>
+      <xs:attribute name="TimeStamp"/>
+
+    </xs:complexType>
+  </xs:element>
+
+  <!-- BaseRates: OTA_HotelRatePlanRS -->
+
+  <xs:element name="OTA_HotelRatePlanRS">
+    <xs:complexType>
+
+      <xs:choice>
+
+        <!-- choice: Errors {1} -->
+
+        <xs:element name="Errors">
+          <xs:complexType>
+            <xs:sequence>
+   
+              <!-- Errors > Error {1,} -->
+   
+              <xs:element name="Error" maxOccurs="unbounded">
+                <xs:complexType mixed="true">
+                  <xs:attribute name="Type" use="required">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value="13"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:attribute>
+                  <xs:attribute name="Code" use="required" type="def_int_ge0"/>
+                </xs:complexType>
+              </xs:element>
+   
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- choice: Success {1} + RatePlans {1} -->
+
+        <xs:sequence>
+          <xs:element name="Success"/>
+          <xs:group ref="def_rateplans"/>
+        </xs:sequence>
+
+      </xs:choice>
+      <xs:attribute name="Version" use="required"/>
+      <xs:attribute name="TimeStamp"/>
+
+    </xs:complexType>
+  </xs:element>
+
+
+  <!-- ******************************************************************************* -->
+  <!-- * common definition for HotelDescriptiveContents element as used                -->
+  <!-- * in the Inventory types                                                        -->
+  <!-- ******************************************************************************* -->
+
+  <xs:group name="def_hoteldescriptivecontents">
+    <xs:sequence>
 
         <xs:element name="HotelDescriptiveContents" maxOccurs="1">
           <xs:complexType>
@@ -1019,7 +1341,18 @@
                 <xs:complexType>
                   <xs:sequence>
 
-                    <xs:element name="FacilityInfo" maxOccurs="1">
+                    <!-- HotelInfo -->
+                    <xs:element name="HotelInfo" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:anyAttribute processContents="lax"/>
+                      </xs:complexType>
+                    </xs:element>
+
+                    <!-- FacilityInfo -->
+                    <xs:element name="FacilityInfo" minOccurs="0" maxOccurs="1">
                       <xs:complexType>
                         <xs:sequence>
 
@@ -1036,6 +1369,7 @@
                                           <xs:attribute name="StandardOccupancy"      type="def_int_gt0" />
                                           <xs:attribute name="RoomClassificationCode" type="def_int_ge0" />
                                           <xs:attribute name="RoomID"                 type="def_nonempty_string" />
+                                          <xs:attribute name="Size"                   type="def_int_ge0" />
                                         </xs:complexType>
                                       </xs:element>
 
@@ -1171,6 +1505,7 @@
                                     <xs:attribute name="MaxOccupancy"                     type="def_int_gt0" />
                                     <xs:attribute name="MinOccupancy"                     type="def_int_gt0" />
                                     <xs:attribute name="MaxChildOccupancy"                type="def_int_gt0" />
+                                    <xs:attribute name="ID"                               type="def_invTypeCode_string" />
                                   </xs:complexType>
                                 </xs:element>
 
@@ -1182,7 +1517,38 @@
                       </xs:complexType>
                     </xs:element>
 
+                    <!-- Policies -->
+                    <xs:element name="Policies" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:anyAttribute processContents="lax"/>
+                      </xs:complexType>
+                    </xs:element>
+
+                    <!-- AffiliationInfo -->
+                    <xs:element name="AffiliationInfo" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:anyAttribute processContents="lax"/>
+                      </xs:complexType>
+                    </xs:element>
+
+                    <!-- ContactInfos -->
+                    <xs:element name="ContactInfos" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:anyAttribute processContents="lax"/>
+                      </xs:complexType>
+                    </xs:element>
+
                   </xs:sequence>
+                  <xs:attribute name="HotelCityCode" type="def_nonempty_string" />
                   <xs:attribute name="HotelCode" type="def_nonempty_string" />
                   <xs:attribute name="HotelName" type="def_nonempty_string" />
                 </xs:complexType>
@@ -1192,242 +1558,342 @@
           </xs:complexType>
         </xs:element>
 
-      </xs:sequence>
+    </xs:sequence>
+  </xs:group>
 
-      <xs:attribute name="Version" use="required" />
-      <xs:attribute name="TimeStamp" />
-    </xs:complexType>
-  </xs:element>
 
-  <!-- Inventory: OTA_HotelDescriptiveContentNotifRS -->
-  
-  <xs:element name="OTA_HotelDescriptiveContentNotifRS">
-    <xs:complexType>
-      <xs:group ref="def_generic_response"/>
-      <xs:attribute name="Version" use="required" />
-      <xs:attribute name="TimeStamp" />
-    </xs:complexType>
-  </xs:element>
-  
-  
   <!-- ******************************************************************************* -->
-  <!-- * SimplePackages & RatePlans                                                    -->
+  <!-- * common definition for RatePlans element as used                               -->
+  <!-- * in RatePlans and BaseRates                                                    -->
   <!-- ******************************************************************************* -->
 
-  <!-- SimplePackages & RatePlans: OTA_HotelRatePlanNotifRQ -->
+  <xs:group name="def_rateplans">
 
-  <xs:element name="OTA_HotelRatePlanNotifRQ">
-    <xs:complexType>
-      <xs:sequence>
+    <xs:sequence>
+      <xs:element name="RatePlans">
+        <xs:complexType>
+          <xs:sequence>
 
-        <!-- UniqueID {0,1} -->
+            <!-- RatePlans > RatePlan {1,} -->
 
-        <xs:element name="UniqueID" minOccurs="0">
-          <xs:complexType>
-            <xs:attribute name="Type" use="required">
-              <xs:simpleType>
-                <xs:restriction base="xs:string">
-                  <xs:enumeration value="16"/>
-                </xs:restriction>
-              </xs:simpleType>
-            </xs:attribute>
-            <xs:attribute name="ID" use="required" type="xs:string"/> <!-- an ID is required by OTA, we ignore the value -->
-            <xs:attribute name="Instance" use="required">
-              <xs:simpleType>
-                <xs:restriction base="xs:string">
-                  <xs:enumeration value="CompleteSet"/>
-                </xs:restriction>
-              </xs:simpleType>
-            </xs:attribute>
-          </xs:complexType>
-        </xs:element>
+            <xs:element name="RatePlan" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
 
-        <!-- RatePlans {1} -->
- 
-        <xs:element name="RatePlans">
-          <xs:complexType>
-            <xs:sequence>
+                  <!-- RatePlans > RatePlan > BookingRules {0,1} -->
 
-              <!-- RatePlans > RatePlan {1,} -->
+                  <xs:element name="BookingRules" minOccurs="0">
+                    <xs:complexType>
+                      <xs:sequence>
 
-              <xs:element name="RatePlan" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
+                        <xs:element name="BookingRule" maxOccurs="unbounded">
+                          <xs:complexType>
+                            <xs:sequence>
 
-                    <!-- RatePlans > RatePlan > BookingRules {0,1}   (RatePlans) -->
+                              <xs:element name="LengthsOfStay" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
 
-                    <xs:element name="BookingRules" minOccurs="0">
-                      <xs:complexType>
-                        <xs:sequence>
+                                    <xs:element name="LengthOfStay" maxOccurs="unbounded">
+                                      <xs:complexType>
+                                        <xs:attribute name="Time" use="required" type="def_decimal_ge0"/>
+                                        <xs:attribute name="TimeUnit" use="required">
+                                          <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                              <xs:enumeration value="Day"/>
+                                            </xs:restriction>
+                                          </xs:simpleType>
+                                        </xs:attribute>
+                                        <xs:attribute name="MinMaxMessageType" use="required">
+                                          <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                              <xs:enumeration value="SetMinLOS"/>
+                                              <xs:enumeration value="SetForwardMinStay"/>
+                                              <xs:enumeration value="SetMaxLOS"/>
+                                              <xs:enumeration value="SetForwardMaxStay"/>
+                                            </xs:restriction>
+                                          </xs:simpleType>
+                                        </xs:attribute>
+                                      </xs:complexType>
+                                    </xs:element>
 
-                          <xs:element name="BookingRule" maxOccurs="unbounded">
-                            <xs:complexType>
-                              <xs:sequence>
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
 
-                                <xs:element name="LengthsOfStay" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:sequence>
+                              <xs:element name="DOW_Restrictions" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
+                                    <xs:element name="ArrivalDaysOfWeek" minOccurs="0">
+                                      <xs:complexType>
+                                        <xs:attribute name="Mon"  type="def_bool"/>
+                                        <xs:attribute name="Tue"  type="def_bool"/>
+                                        <xs:attribute name="Weds" type="def_bool"/>
+                                        <xs:attribute name="Thur" type="def_bool"/>
+                                        <xs:attribute name="Fri"  type="def_bool"/>
+                                        <xs:attribute name="Sat"  type="def_bool"/>
+                                        <xs:attribute name="Sun"  type="def_bool"/>
+                                      </xs:complexType>
+                                    </xs:element>
+                                    <xs:element name="DepartureDaysOfWeek" minOccurs="0">
+                                      <xs:complexType>
+                                        <xs:attribute name="Mon"  type="def_bool"/>
+                                        <xs:attribute name="Tue"  type="def_bool"/>
+                                        <xs:attribute name="Weds" type="def_bool"/>
+                                        <xs:attribute name="Thur" type="def_bool"/>
+                                        <xs:attribute name="Fri"  type="def_bool"/>
+                                        <xs:attribute name="Sat"  type="def_bool"/>
+                                        <xs:attribute name="Sun"  type="def_bool"/>
+                                      </xs:complexType>
+                                    </xs:element>
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
 
-                                      <xs:element name="LengthOfStay" maxOccurs="unbounded">
-                                        <xs:complexType>
-                                          <xs:attribute name="Time" use="required" type="def_decimal_ge0"/>
-                                          <xs:attribute name="TimeUnit" use="required">
-                                            <xs:simpleType>
-                                              <xs:restriction base="xs:string">
-                                                <xs:enumeration value="Day"/>
-                                              </xs:restriction>
-                                            </xs:simpleType>
-                                          </xs:attribute>
-                                          <xs:attribute name="MinMaxMessageType" use="required">
-                                            <xs:simpleType>
-                                              <xs:restriction base="xs:string">
-                                                <xs:enumeration value="SetMinLOS"/>
-                                                <xs:enumeration value="SetMaxLOS"/>
-                                              </xs:restriction>
-                                            </xs:simpleType>
-                                          </xs:attribute>
-                                        </xs:complexType>
-                                      </xs:element>
+                              <xs:element name="RestrictionStatus" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:attribute name="Restriction">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:enumeration value="Master"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                  <xs:attribute name="Status">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:enumeration value="Open"/>
+                                        <xs:enumeration value="Close"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                </xs:complexType>
+                              </xs:element>
 
-                                    </xs:sequence>
-                                  </xs:complexType>
-                                </xs:element>
+                            </xs:sequence>
+                            <xs:attribute name="CodeContext">
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:enumeration value="ROOMTYPE"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
+                            <xs:attribute name="Code"  type="def_invTypeCode_string"/>
+                            <xs:attribute name="Start" type="def_date"/>
+                            <xs:attribute name="End"   type="def_date"/>
+                          </xs:complexType>
+                        </xs:element>
 
-                                <xs:element name="DOW_Restrictions" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:sequence>
-                                      <xs:element name="ArrivalDaysOfWeek" minOccurs="0">
-                                        <xs:complexType>
-                                          <xs:attribute name="Mon"  type="def_bool"/>
-                                          <xs:attribute name="Tue"  type="def_bool"/>
-                                          <xs:attribute name="Weds" type="def_bool"/>
-                                          <xs:attribute name="Thur" type="def_bool"/>
-                                          <xs:attribute name="Fri"  type="def_bool"/>
-                                          <xs:attribute name="Sat"  type="def_bool"/>
-                                          <xs:attribute name="Sun"  type="def_bool"/>
-                                        </xs:complexType>
-                                      </xs:element>
-                                      <xs:element name="DepartureDaysOfWeek" minOccurs="0">
-                                        <xs:complexType>
-                                          <xs:attribute name="Mon"  type="def_bool"/>
-                                          <xs:attribute name="Tue"  type="def_bool"/>
-                                          <xs:attribute name="Weds" type="def_bool"/>
-                                          <xs:attribute name="Thur" type="def_bool"/>
-                                          <xs:attribute name="Fri"  type="def_bool"/>
-                                          <xs:attribute name="Sat"  type="def_bool"/>
-                                          <xs:attribute name="Sun"  type="def_bool"/>
-                                        </xs:complexType>
-                                      </xs:element>
-                                    </xs:sequence>
-                                  </xs:complexType>
-                                </xs:element>
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
 
-                                <xs:element name="RestrictionStatus" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:attribute name="Restriction">
+                  <!-- RatePlans > RatePlan > Rates {0,1} -->
+
+                  <xs:element name="Rates" minOccurs="0">
+                    <xs:complexType>
+                      <xs:sequence>
+
+                        <xs:element name="Rate" maxOccurs="unbounded">
+                          <xs:complexType>
+                            <xs:sequence>
+
+                              <xs:element name="BaseByGuestAmts" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
+
+                                    <xs:element name="BaseByGuestAmt" maxOccurs="unbounded">
+                                      <xs:complexType>
+                                        <xs:attribute name="NumberOfGuests" type="def_int_gt0"/>
+                                        <xs:attribute name="AmountAfterTax" type="def_decimal_gt0"/>
+                                        <xs:attribute name="CurrencyCode">
+                                          <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                              <xs:enumeration value="EUR"/>
+                                            </xs:restriction>
+                                          </xs:simpleType>
+                                        </xs:attribute>
+                                        <xs:attribute name="Type">
+                                          <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                              <xs:enumeration value="7"/>
+                                              <xs:enumeration value="25"/>
+                                            </xs:restriction>
+                                          </xs:simpleType>
+                                        </xs:attribute>
+                                        <xs:attribute name="AgeQualifyingCode" type="def_int_gt0"/>
+                                      </xs:complexType>
+                                    </xs:element>
+
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
+
+                              <xs:element name="AdditionalGuestAmounts" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
+
+                                    <xs:element name="AdditionalGuestAmount" maxOccurs="unbounded">
+                                      <xs:complexType>
+                                        <xs:attribute name="Amount"            type="def_decimal_ge0"/>
+                                        <xs:attribute name="AgeQualifyingCode" type="def_int_gt0"/>
+                                        <xs:attribute name="MinAge"            type="def_int_gt0"/>
+                                        <xs:attribute name="MaxAge"            type="def_int_gt0"/>
+                                      </xs:complexType>
+                                    </xs:element>
+
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
+
+                              <xs:element name="RateDescription" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
+
+                                    <xs:element name="ListItem" maxOccurs="unbounded">
+                                      <xs:complexType>                    
+                                         <xs:simpleContent>                
+                                           <xs:extension base="def_nonempty_string">
+                                             <xs:attribute name="ListItem" use="required" type="def_int_ge0"/>
+                                             <xs:attribute name="Language" use="required">
+                                               <xs:simpleType>             
+                                                 <xs:restriction base="xs:language">
+                                                   <xs:pattern value="[a-z][a-z]"/>
+                                                 </xs:restriction>         
+                                               </xs:simpleType>            
+                                             </xs:attribute>               
+                                           </xs:extension>                 
+                                         </xs:simpleContent>               
+                                       </xs:complexType>                   
+                                    </xs:element>
+     
+                                  </xs:sequence>
+                                    <xs:attribute name="Name" use="required">
                                       <xs:simpleType>
                                         <xs:restriction base="xs:string">
-                                          <xs:enumeration value="Master"/>
+                                          <xs:enumeration value="included services"/>
                                         </xs:restriction>
                                       </xs:simpleType>
                                     </xs:attribute>
-                                    <xs:attribute name="Status">
+                                </xs:complexType>
+                              </xs:element>
+
+                              <xs:element name="MealsIncluded" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:attribute name="Breakfast" type="def_bool"/>
+                                  <xs:attribute name="Lunch"     type="def_bool"/>
+                                  <xs:attribute name="Dinner"    type="def_bool"/>
+                                  <xs:attribute name="MealPlanCodes">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:enumeration value="1"/>
+                                        <xs:enumeration value="3"/>
+                                        <xs:enumeration value="10"/>
+                                        <xs:enumeration value="12"/>
+                                        <xs:enumeration value="14"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                  <xs:attribute name="MealPlanIndicator">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:enumeration value="1"/>
+                                        <xs:enumeration value="true"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                </xs:complexType>
+                              </xs:element>
+                      
+                            </xs:sequence>
+                            <xs:attribute name="MinGuestApplicable" type="def_int_gt0"/>
+                            <xs:attribute name="Start"              type="def_date"/>
+                            <xs:attribute name="End"                type="def_date"/>
+                            <xs:attribute name="RateTimeUnit">
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:enumeration value="Day"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
+                            <xs:attribute name="UnitMultiplier"     type="def_int_gt0"/>
+                            <xs:attribute name="Mon"                type="def_bool"/>
+                            <xs:attribute name="Tue"                type="def_bool"/>
+                            <xs:attribute name="Weds"               type="def_bool"/>
+                            <xs:attribute name="Thur"               type="def_bool"/>
+                            <xs:attribute name="Fri"                type="def_bool"/>
+                            <xs:attribute name="Sat"                type="def_bool"/>
+                            <xs:attribute name="Sun"                type="def_bool"/>
+                            <xs:attribute name="Duration">
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:pattern value="P[0-9]+N"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
+                            <xs:attribute name="InvTypeCode" type="def_invTypeCode_string"/>
+
+                          </xs:complexType>
+                        </xs:element>
+                      
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+
+                  <!-- RatePlans > RatePlan > Supplements {0,1} -->
+
+                  <xs:element name="Supplements" minOccurs="0">
+                    <xs:complexType>
+                      <xs:sequence>
+
+                        <xs:element name="Supplement" maxOccurs="unbounded">
+                          <xs:complexType>
+                            <xs:sequence>
+
+                              <xs:element name="PrerequisiteInventory" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="InvCode" use="required">
                                       <xs:simpleType>
                                         <xs:restriction base="xs:string">
-                                          <xs:enumeration value="Open"/>
-                                          <xs:enumeration value="Close"/>
+                                          <xs:pattern value="[01]{7}"/>
                                         </xs:restriction>
                                       </xs:simpleType>
                                     </xs:attribute>
-                                  </xs:complexType>
-                                </xs:element>
+                                    <xs:attribute name="InvType" use="required">
+                                      <xs:simpleType>
+                                        <xs:restriction base="xs:string">
+                                          <xs:enumeration value="ALPINEBITSDOW"/>
+                                        </xs:restriction>
+                                      </xs:simpleType>
+                                    </xs:attribute>
+                                </xs:complexType>
+                              </xs:element>
 
-                              </xs:sequence>
-                              <xs:attribute name="CodeContext">
-                                <xs:simpleType>
-                                  <xs:restriction base="xs:string">
-                                    <xs:enumeration value="ROOMTYPE"/>
-                                  </xs:restriction>
-                                </xs:simpleType>
-                              </xs:attribute>
-                              <xs:attribute name="Code"  type="def_invTypeCode_string"/>
-                              <xs:attribute name="Start" type="def_date"/>
-                              <xs:attribute name="End"   type="def_date"/>
-                            </xs:complexType>
-                          </xs:element>
-
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-
-                    <!-- RatePlans > RatePlan > Rates {0,1}          (SimplePackages & RatePlans) -->
-
-                    <xs:element name="Rates" minOccurs="0">
-                      <xs:complexType>
-                        <xs:sequence>
-
-                          <xs:element name="Rate" maxOccurs="unbounded">
-                            <xs:complexType>
-                              <xs:sequence>
-
-                                <xs:element name="BaseByGuestAmts" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:sequence>
-
-                                      <xs:element name="BaseByGuestAmt" maxOccurs="unbounded">
-                                        <xs:complexType>
-                                          <xs:attribute name="NumberOfGuests" use="required" type="def_int_gt0"/>
-                                          <xs:attribute name="AmountAfterTax" type="def_decimal_gt0"/>
-                                          <xs:attribute name="CurrencyCode">
-                                            <xs:simpleType>
-                                              <xs:restriction base="xs:string">
-                                                <xs:enumeration value="EUR"/>
-                                              </xs:restriction>
-                                            </xs:simpleType>
-                                          </xs:attribute>
-                                          <xs:attribute name="Type">
-                                            <xs:simpleType>
-                                              <xs:restriction base="xs:string">
-                                                <xs:enumeration value="7"/>
-                                                <xs:enumeration value="25"/>
-                                              </xs:restriction>
-                                            </xs:simpleType>
-                                          </xs:attribute>
-                                          <xs:attribute name="AgeQualifyingCode" type="def_int_gt0"/>
-                                        </xs:complexType>
-                                      </xs:element>
-
-                                    </xs:sequence>
-                                  </xs:complexType>
-                                </xs:element>
-
-                                <xs:element name="AdditionalGuestAmounts" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:sequence>
-
-                                      <xs:element name="AdditionalGuestAmount" maxOccurs="unbounded">
-                                        <xs:complexType>
-                                          <xs:attribute name="Amount"            type="def_decimal_ge0"/>
-                                          <xs:attribute name="AgeQualifyingCode" type="def_int_gt0"/>
-                                          <xs:attribute name="MinAge"            type="def_int_gt0"/>
-                                          <xs:attribute name="MaxAge"            type="def_int_gt0"/>
-                                        </xs:complexType>
-                                      </xs:element>
-
-                                    </xs:sequence>
-                                  </xs:complexType>
-                                </xs:element>
-
-                                <xs:element name="RateDescription" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:sequence>
-
-                                      <xs:element name="ListItem" maxOccurs="unbounded">
+                              <!-- RatePlans > RatePlan > Supplements > Supplement > Description {0,5} -->
+                      
+                              <xs:element name="Description" minOccurs="0" maxOccurs="5">
+                                <xs:complexType>
+                                  <xs:sequence>
+                      
+                                    <xs:choice maxOccurs="unbounded">
+                      
+                                      <xs:element name="ListItem" type="def_nonempty_string"/>
+                      
+                                      <xs:element name="Image" type="def_url_string"/>
+                      
+                                      <xs:element name="Text">
                                         <xs:complexType>                    
                                            <xs:simpleContent>                
                                              <xs:extension base="def_nonempty_string">
-                                               <xs:attribute name="ListItem" use="required" type="def_int_ge0"/>
-                                               <xs:attribute name="Language" use="required">
+                                               <xs:attribute name="TextFormat" use="required">
+                                                 <xs:simpleType>             
+                                                   <xs:restriction base="xs:string">
+                                                     <xs:enumeration value="PlainText"/>
+                                                     <xs:enumeration value="HTML"/> 
+                                                   </xs:restriction>         
+                                                 </xs:simpleType>            
+                                               </xs:attribute>               
+                                               <xs:attribute name="Language">
                                                  <xs:simpleType>             
                                                    <xs:restriction base="xs:language">
                                                      <xs:pattern value="[a-z][a-z]"/>
@@ -1438,395 +1904,351 @@
                                            </xs:simpleContent>               
                                          </xs:complexType>                   
                                       </xs:element>
-       
-                                    </xs:sequence>
-                                      <xs:attribute name="Name" use="required">
-                                        <xs:simpleType>
-                                          <xs:restriction base="xs:string">
-                                            <xs:enumeration value="included services"/>
-                                          </xs:restriction>
-                                        </xs:simpleType>
-                                      </xs:attribute>
-                                  </xs:complexType>
-                                </xs:element>
+                                  
+                                      <xs:element name="URL" type="def_url_string"/>
+                      
+                                    </xs:choice>
+                      
+                                  </xs:sequence>
+                      
+                                  <xs:attribute name="Name" use="required">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:enumeration value="title"/>
+                                        <xs:enumeration value="intro"/>
+                                        <xs:enumeration value="description"/>
+                                        <xs:enumeration value="gallery"/>
+                                        <xs:enumeration value="codelist"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                </xs:complexType>
+                              </xs:element>
 
-                                <xs:element name="MealsIncluded" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:attribute name="Breakfast" type="def_bool"/>
-                                    <xs:attribute name="Lunch"     type="def_bool"/>
-                                    <xs:attribute name="Dinner"    type="def_bool"/>
-                                    <xs:attribute name="MealPlanCodes">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:enumeration value="1"/>
-                                          <xs:enumeration value="3"/>
-                                          <xs:enumeration value="10"/>
-                                          <xs:enumeration value="12"/>
-                                          <xs:enumeration value="14"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
-                                    <xs:attribute name="MealPlanIndicator">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:enumeration value="1"/>
-                                          <xs:enumeration value="true"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
-                                  </xs:complexType>
-                                </xs:element>
-                        
-                              </xs:sequence>
-                              <xs:attribute name="MinGuestApplicable" type="def_int_gt0"/>
-                              <xs:attribute name="Start"              type="def_date"/>
-                              <xs:attribute name="End"                type="def_date"/>
-                              <xs:attribute name="RateTimeUnit">
-                                <xs:simpleType>
-                                  <xs:restriction base="xs:string">
-                                    <xs:enumeration value="Day"/>
-                                  </xs:restriction>
-                                </xs:simpleType>
-                              </xs:attribute>
-                              <xs:attribute name="UnitMultiplier"     type="def_int_gt0"/>
-                              <xs:attribute name="Mon"                type="def_bool"/>
-                              <xs:attribute name="Tue"                type="def_bool"/>
-                              <xs:attribute name="Weds"               type="def_bool"/>
-                              <xs:attribute name="Thur"               type="def_bool"/>
-                              <xs:attribute name="Fri"                type="def_bool"/>
-                              <xs:attribute name="Sat"                type="def_bool"/>
-                              <xs:attribute name="Sun"                type="def_bool"/>
-                              <xs:attribute name="Duration">
-                                <xs:simpleType>
-                                  <xs:restriction base="xs:string">
-                                    <xs:pattern value="P[0-9]+N"/>
-                                  </xs:restriction>
-                                </xs:simpleType>
-                              </xs:attribute>
-                              <xs:attribute name="InvTypeCode" type="def_invTypeCode_string"/>
+                            </xs:sequence>
 
-                            </xs:complexType>
+                            <xs:attribute name="AddToBasicRateIndicator">
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:enumeration value="1"/>
+                                  <xs:enumeration value="true"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
+
+                            <xs:attribute name="ChargeTypeCode">
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:enumeration value="1"/>
+                                  <xs:enumeration value="12"/>
+                                  <xs:enumeration value="18"/>
+                                  <xs:enumeration value="19"/>
+                                  <xs:enumeration value="20"/>
+                                  <xs:enumeration value="21"/>
+                                  <xs:enumeration value="24"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
+
+                            <xs:attribute name="Amount" type="def_decimal_ge0"/>
+
+                            <xs:attribute name="InvType" use="required">
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:enumeration value="EXTRA"/>
+                                  <xs:enumeration value="ALPINEBITSEXTRA"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
+
+                            <xs:attribute name="InvCode" type="def_nonempty_string" use="required"/>
+
+                            <xs:attribute name="MandatoryIndicator" type="def_bool"/>
+
+                            <xs:attribute name="Start" type="def_date"/>
+                            <xs:attribute name="End"   type="def_date"/>
+
+                          </xs:complexType>
+                        </xs:element>  <!-- close Supplement -->
+
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+
+                  <!-- RatePlans > RatePlan > Offers {0,1} -->
+
+                  <xs:element name="Offers" minOccurs="0">
+                    <xs:complexType>
+                      <xs:sequence>
+
+                        <xs:element name="Offer" maxOccurs="3">
+                          <xs:complexType>
+                            <xs:sequence>
+
+                              <xs:element name="OfferRules" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
+
+                                    <xs:element name="OfferRule" minOccurs="0">
+                                      <xs:complexType>
+                                        <xs:sequence>
+                                  
+                                          <xs:element name="LengthsOfStay" minOccurs="0">
+                                            <xs:complexType>
+                                              <xs:sequence>
+                                  
+                                                <xs:element name="LengthOfStay" maxOccurs="unbounded">
+                                                  <xs:complexType>
+                                                    <xs:attribute name="Time" use="required" type="def_decimal_ge0"/>
+                                                    <xs:attribute name="TimeUnit" use="required">
+                                                      <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                          <xs:enumeration value="Day"/>
+                                                        </xs:restriction>
+                                                      </xs:simpleType>
+                                                    </xs:attribute>
+                                                    <xs:attribute name="MinMaxMessageType" use="required">
+                                                      <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                          <xs:enumeration value="SetMinLOS"/>
+                                                          <xs:enumeration value="SetForwardMinStay"/>
+                                                          <xs:enumeration value="SetMaxLOS"/>
+                                                          <xs:enumeration value="SetForwardMaxStay"/>
+                                                          <xs:enumeration value=""/>
+                                                        </xs:restriction>
+                                                      </xs:simpleType>
+                                                    </xs:attribute>
+                                                  </xs:complexType>
+                                                </xs:element>
+                                  
+                                              </xs:sequence>
+                                            </xs:complexType>
+                                          </xs:element>
+                                  
+                                          <xs:element name="DOW_Restrictions" minOccurs="0">
+                                            <xs:complexType>
+                                              <xs:sequence>
+                                                <xs:element name="ArrivalDaysOfWeek" minOccurs="0">
+                                                  <xs:complexType>
+                                                    <xs:attribute name="Mon"  type="def_bool"/>
+                                                    <xs:attribute name="Tue"  type="def_bool"/>
+                                                    <xs:attribute name="Weds" type="def_bool"/>
+                                                    <xs:attribute name="Thur" type="def_bool"/>
+                                                    <xs:attribute name="Fri"  type="def_bool"/>
+                                                    <xs:attribute name="Sat"  type="def_bool"/>
+                                                    <xs:attribute name="Sun"  type="def_bool"/>
+                                                  </xs:complexType>
+                                                </xs:element>
+                                                <xs:element name="DepartureDaysOfWeek" minOccurs="0">
+                                                  <xs:complexType>
+                                                    <xs:attribute name="Mon"  type="def_bool"/>
+                                                    <xs:attribute name="Tue"  type="def_bool"/>
+                                                    <xs:attribute name="Weds" type="def_bool"/>
+                                                    <xs:attribute name="Thur" type="def_bool"/>
+                                                    <xs:attribute name="Fri"  type="def_bool"/>
+                                                    <xs:attribute name="Sat"  type="def_bool"/>
+                                                    <xs:attribute name="Sun"  type="def_bool"/>
+                                                  </xs:complexType>
+                                                </xs:element>
+                                              </xs:sequence>
+                                            </xs:complexType>
+                                          </xs:element>
+                                  
+                                          <xs:element name="Occupancy" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                              <xs:attribute name="AgeQualifyingCode" use="required">
+                                                <xs:simpleType>
+                                                  <xs:restriction base="xs:string">
+                                                    <xs:enumeration value="8"/>
+                                                    <xs:enumeration value="10"/>
+                                                  </xs:restriction>
+                                                </xs:simpleType>
+                                              </xs:attribute>
+                                              <xs:attribute name="MinAge" type="def_int_gt0"/>
+                                              <xs:attribute name="MaxAge" type="def_int_gt0"/>
+                                              <xs:attribute name="MinOccupancy" type="def_int_ge0"/>
+                                              <xs:attribute name="MaxOccupancy" type="def_int_gt0"/>
+                                            </xs:complexType>
+                                          </xs:element>
+                                  
+                                        </xs:sequence>
+                                  
+                                        <xs:attribute name="MinAdvancedBookingOffset">
+                                          <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                              <xs:pattern value="P[0-9]+D"/>
+                                            </xs:restriction>
+                                          </xs:simpleType>
+                                        </xs:attribute>
+                                        <xs:attribute name="MaxAdvancedBookingOffset">
+                                          <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                              <xs:pattern value="P[0-9]+D"/>
+                                            </xs:restriction>
+                                          </xs:simpleType>
+                                        </xs:attribute>
+                                  
+                                      </xs:complexType>
+                                    </xs:element>
+
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
+
+                              <xs:element name="Discount" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:attribute name="Percent" use="required">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:enumeration value="100"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                  <xs:attribute name="NightsRequired"   type="def_int_gt0"/>
+                                  <xs:attribute name="NightsDiscounted" type="def_int_gt0"/>
+                                  <xs:attribute name="DiscountPattern">
+                                    <xs:simpleType>
+                                      <xs:restriction base="xs:string">
+                                        <xs:pattern value="0*1*"/>
+                                      </xs:restriction>
+                                    </xs:simpleType>
+                                  </xs:attribute>
+                                </xs:complexType>
+                              </xs:element>
+
+                              <xs:element name="Guests" minOccurs="0">
+                                <xs:complexType>
+                                  <xs:sequence>
+
+                                    <xs:element name="Guest">
+                                      <xs:complexType>
+                                        <xs:attribute name="AgeQualifyingCode" use="required" type="def_int_gt0"/>
+                                        <xs:attribute name="MaxAge"            use="required" type="def_int_gt0"/>
+                                        <xs:attribute name="MinCount"          use="required" type="def_int_ge0"/>
+                                          <xs:attribute name="FirstQualifyingPosition" use="required">
+                                            <xs:simpleType>
+                                              <xs:restriction base="xs:string">
+                                                <xs:enumeration value="1"/>
+                                              </xs:restriction>
+                                            </xs:simpleType>
+                                          </xs:attribute>
+                                          <xs:attribute name="LastQualifyingPosition" use="required" type="def_int_gt0"/>
+                                      </xs:complexType>
+                                    </xs:element>
+
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
+
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
+
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+
+                  <!-- RatePlans > RatePlan > Description {0,5} -->
+
+                  <xs:element name="Description" minOccurs="0" maxOccurs="5">
+                    <xs:complexType>
+                      <xs:sequence>
+
+                        <xs:choice maxOccurs="unbounded">
+
+                          <xs:element name="ListItem" type="def_nonempty_string"/>
+
+                          <xs:element name="Image" type="def_url_string"/>
+
+                          <xs:element name="Text">
+                            <xs:complexType>                    
+                               <xs:simpleContent>                
+                                 <xs:extension base="def_nonempty_string">
+                                   <xs:attribute name="TextFormat" use="required">
+                                     <xs:simpleType>             
+                                       <xs:restriction base="xs:string">
+                                         <xs:enumeration value="PlainText"/>
+                                         <xs:enumeration value="HTML"/> 
+                                       </xs:restriction>         
+                                     </xs:simpleType>            
+                                   </xs:attribute>               
+                                   <xs:attribute name="Language">
+                                     <xs:simpleType>             
+                                       <xs:restriction base="xs:language">
+                                         <xs:pattern value="[a-z][a-z]"/>
+                                       </xs:restriction>         
+                                     </xs:simpleType>            
+                                   </xs:attribute>               
+                                 </xs:extension>                 
+                               </xs:simpleContent>               
+                             </xs:complexType>                   
                           </xs:element>
-                        
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
+                      
+                          <xs:element name="URL" type="def_url_string"/>
 
-                    <!-- RatePlans > RatePlan > Supplements {0,1}    (RatePlans) -->
+                        </xs:choice>
 
-                    <xs:element name="Supplements" minOccurs="0">
-                      <xs:complexType>
-                        <xs:sequence>
+                      </xs:sequence>
 
-                          <xs:element name="Supplement" maxOccurs="unbounded">
-                            <xs:complexType>
-                              <xs:sequence>
+                      <xs:attribute name="Name" use="required">
+                        <xs:simpleType>
+                          <xs:restriction base="xs:string">
+                            <xs:enumeration value="title"/>
+                            <xs:enumeration value="intro"/>
+                            <xs:enumeration value="description"/>
+                            <xs:enumeration value="gallery"/>
+                            <xs:enumeration value="codelist"/>
+                          </xs:restriction>
+                        </xs:simpleType>
+                      </xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
 
-                                <xs:element name="Description" minOccurs="0" maxOccurs="2">
-                                  <xs:complexType>
+                </xs:sequence>
+                <xs:attribute name="Start" type="def_date"/>
+                <xs:attribute name="End"   type="def_date"/>
+                <xs:attribute name="RatePlanNotifType">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:enumeration value="Overlay"/>
+                      <xs:enumeration value="New"/>
+                      <xs:enumeration value="Remove"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="CurrencyCode">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:enumeration value="EUR"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="RatePlanCode" type="def_nonempty_string"/>
+                <xs:attribute name="RatePlanType">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:enumeration value="12"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:attribute>                
+                <xs:attribute name="RatePlanCategory" type="def_nonempty_string"/>
+                <xs:attribute name="RatePlanID" type="def_nonempty_string"/>
+                <xs:attribute name="RatePlanQualifier" type="def_bool"/>
+              </xs:complexType>
+            </xs:element> <!-- close RatePlan -->
 
-                                    <xs:sequence maxOccurs="unbounded">
-                                        <xs:element name="Text" maxOccurs="unbounded">
-                                          <xs:complexType>                    
-                                             <xs:simpleContent>                
-                                               <xs:extension base="def_nonempty_string">
-                                                 <xs:attribute name="TextFormat" use="required">
-                                                   <xs:simpleType>             
-                                                     <xs:restriction base="xs:string">
-                                                       <xs:enumeration value="PlainText"/>
-                                                     </xs:restriction>         
-                                                   </xs:simpleType>            
-                                                 </xs:attribute>               
-                                                 <xs:attribute name="Language" use="required">
-                                                   <xs:simpleType>             
-                                                     <xs:restriction base="xs:language">
-                                                       <xs:pattern value="[a-z][a-z]"/>
-                                                     </xs:restriction>         
-                                                   </xs:simpleType>            
-                                                 </xs:attribute>               
-                                               </xs:extension>                 
-                                             </xs:simpleContent>               
-                                           </xs:complexType>                   
-                                        </xs:element>
-                                    </xs:sequence>
+          </xs:sequence>
+          <xs:attribute name="HotelCode" type="def_nonempty_string"/>
+          <xs:attribute name="HotelName" type="def_nonempty_string"/>
+        </xs:complexType>
 
-                                    <xs:attribute name="Name" use="required">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:enumeration value="title"/>
-                                          <xs:enumeration value="intro"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
+      </xs:element>
 
-                                  </xs:complexType>
+    </xs:sequence>
 
-                                </xs:element>
+  </xs:group>
 
-                              </xs:sequence>
-
-                              <xs:attribute name="AddToBasicRateIndicator">
-                                <xs:simpleType>
-                                  <xs:restriction base="xs:string">
-                                    <xs:enumeration value="1"/>
-                                    <xs:enumeration value="true"/>
-                                  </xs:restriction>
-                                </xs:simpleType>
-                              </xs:attribute>
-
-                              <xs:attribute name="ChargeTypeCode">
-                                <xs:simpleType>
-                                  <xs:restriction base="xs:string">
-                                    <xs:enumeration value="1"/>
-                                    <xs:enumeration value="12"/>
-                                    <xs:enumeration value="18"/>
-                                    <xs:enumeration value="19"/>
-                                    <xs:enumeration value="20"/>
-                                    <xs:enumeration value="21"/>
-                                    <xs:enumeration value="24"/>
-                                  </xs:restriction>
-                                </xs:simpleType>
-                              </xs:attribute>
-
-                              <xs:attribute name="Amount" type="def_decimal_ge0"/>
-
-                              <xs:attribute name="InvType" use="required">
-                                <xs:simpleType>
-                                  <xs:restriction base="xs:string">
-                                    <xs:enumeration value="EXTRA"/>
-                                    <xs:enumeration value="ALPINEBITSEXTRA"/>
-                                  </xs:restriction>
-                                </xs:simpleType>
-                              </xs:attribute>
-
-                              <xs:attribute name="InvCode" type="def_nonempty_string" use="required"/>
-
-                              <xs:attribute name="MandatoryIndicator" type="def_bool"/>
-
-                              <xs:attribute name="Start" type="def_date"/>
-                              <xs:attribute name="End"   type="def_date"/>
-
-                            </xs:complexType>
-                          </xs:element>
-
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-
-                    <!-- RatePlans > RatePlan > Offers {0,1}         (RatePlans) -->
-
-                    <xs:element name="Offers" minOccurs="0">
-                      <xs:complexType>
-                        <xs:sequence>
-
-                          <xs:element name="Offer" maxOccurs="2">
-                            <xs:complexType>
-                              <xs:sequence>
-
-                                <xs:element name="Discount">
-                                  <xs:complexType>
-                                    <xs:attribute name="Percent" use="required">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:enumeration value="100"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
-                                    <xs:attribute name="NightsRequired"   type="def_int_gt0"/>
-                                    <xs:attribute name="NightsDiscounted" type="def_int_gt0"/>
-                                    <xs:attribute name="DiscountPattern">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:pattern value="0*1*"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
-                                  </xs:complexType>
-                                </xs:element>
-
-                                <xs:element name="Guests" minOccurs="0">
-                                  <xs:complexType>
-                                    <xs:sequence>
-
-                                      <xs:element name="Guest">
-                                        <xs:complexType>
-                                          <xs:attribute name="AgeQualifyingCode" use="required" type="def_int_gt0"/>
-                                          <xs:attribute name="MaxAge"            use="required" type="def_int_gt0"/>
-                                          <xs:attribute name="MinCount"          use="required" type="def_int_ge0"/>
-                                            <xs:attribute name="FirstQualifyingPosition" use="required">
-                                              <xs:simpleType>
-                                                <xs:restriction base="xs:string">
-                                                  <xs:enumeration value="1"/>
-                                                </xs:restriction>
-                                              </xs:simpleType>
-                                            </xs:attribute>
-                                            <xs:attribute name="LastQualifyingPosition" use="required" type="def_int_gt0"/>
-                                        </xs:complexType>
-                                      </xs:element>
-
-                                    </xs:sequence>
-                                  </xs:complexType>
-                                </xs:element>
-
-                              </xs:sequence>
-                            </xs:complexType>
-                          </xs:element>
-
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-
-                    <!-- RatePlans > RatePlan > Description {0,4}    (SimplePackages & RatePlans) -->
-
-                    <!-- Note: RatePlans only supports Text with TextFormat="PlainText" or TextFormat="HTML", the
-                               rest ist for SimplePackages only -->
-
-                    <xs:element name="Description" minOccurs="0" maxOccurs="4">
-                      <xs:complexType>
-                        <xs:sequence maxOccurs="unbounded">
-                          <xs:choice>
-
-                            <xs:element name="Text">
-                              <xs:complexType>                    
-                                 <xs:simpleContent>                
-                                   <xs:extension base="def_nonempty_string">
-                                     <xs:attribute name="TextFormat" use="required">
-                                       <xs:simpleType>             
-                                         <xs:restriction base="xs:string">
-                                           <xs:enumeration value="PlainText"/>
-                                           <xs:enumeration value="HTML"/> 
-                                         </xs:restriction>         
-                                       </xs:simpleType>            
-                                     </xs:attribute>               
-                                     <xs:attribute name="Language" use="required">
-                                       <xs:simpleType>             
-                                         <xs:restriction base="xs:language">
-                                           <xs:pattern value="[a-z][a-z]"/>
-                                         </xs:restriction>         
-                                       </xs:simpleType>            
-                                     </xs:attribute>               
-                                   </xs:extension>                 
-                                 </xs:simpleContent>               
-                               </xs:complexType>                   
-                            </xs:element>
-                        
-                            <xs:element name="ListItem">
-                              <xs:complexType>                    
-                                 <xs:simpleContent>                
-                                   <xs:extension base="def_nonempty_string">
-                                     <xs:attribute name="ListItem" use="required" type="def_int_ge0"/>
-                                     <xs:attribute name="Language" use="required">
-                                       <xs:simpleType>             
-                                         <xs:restriction base="xs:language">
-                                           <xs:pattern value="[a-z][a-z]"/>
-                                         </xs:restriction>         
-                                       </xs:simpleType>            
-                                     </xs:attribute>               
-                                   </xs:extension>                 
-                                 </xs:simpleContent>               
-                               </xs:complexType>                   
-                            </xs:element>
-                        
-                            <xs:element name="Image" type="def_url_string"/>
-                        
-                            <xs:element name="URL"   type="def_url_string"/>
-
-                          </xs:choice>
-                        </xs:sequence>
-
-                        <xs:attribute name="Name" use="required">
-                          <xs:simpleType>
-                            <xs:restriction base="xs:string">
-                              <xs:enumeration value="title"/>
-                              <xs:enumeration value="intro"/>
-                              <xs:enumeration value="gallery"/>
-                              <xs:enumeration value="details"/>
-                            </xs:restriction>
-                          </xs:simpleType>
-                        </xs:attribute>
-                      </xs:complexType>
-                    </xs:element>
-
-                    <!-- RatePlans > RatePlan > UniqueID {0,1}       (SimplePackages) -->
-
-                    <xs:element name="UniqueID" minOccurs="0">
-                      <xs:complexType>
-                        <xs:attribute name="Type" use="required">
-                          <xs:simpleType>
-                            <xs:restriction base="xs:string">
-                              <xs:enumeration value="18"/>
-                            </xs:restriction>
-                          </xs:simpleType>
-                        </xs:attribute>
-                        <xs:attribute name="ID" use="required" type="def_nonempty_string"/>
-                      </xs:complexType>
-                    </xs:element>
-
-                    <!-- RatePlans > RatePlan > HotelRef {0,1}       (SimplePackages) -->
-
-                    <xs:element name="HotelRef" minOccurs="0">
-                      <xs:complexType>
-                          <xs:attribute name="HotelCode" use="required" type="def_nonempty_string"/>
-                          <xs:attribute name="HotelName" use="required" type="def_nonempty_string"/>
-                      </xs:complexType>
-                    </xs:element>
-
-                  </xs:sequence>
-                  <xs:attribute name="Start" type="def_date"/>
-                  <xs:attribute name="End"   type="def_date"/>
-                  <xs:attribute name="RatePlanNotifType">
-                    <xs:simpleType>
-                      <xs:restriction base="xs:string">
-                        <xs:enumeration value="Overlay"/>
-                        <xs:enumeration value="New"/>
-                        <xs:enumeration value="Remove"/>
-                      </xs:restriction>
-                    </xs:simpleType>
-                  </xs:attribute>
-                  <xs:attribute name="CurrencyCode">
-                    <xs:simpleType>
-                      <xs:restriction base="xs:string">
-                        <xs:enumeration value="EUR"/>
-                      </xs:restriction>
-                    </xs:simpleType>
-                  </xs:attribute>
-                  <xs:attribute name="RatePlanCode" type="def_nonempty_string"/>
-                  <xs:attribute name="RatePlanType">
-                    <xs:simpleType>
-                      <xs:restriction base="xs:string">
-                        <xs:enumeration value="12"/>
-                      </xs:restriction>
-                    </xs:simpleType>
-                  </xs:attribute>                
-                  <xs:attribute name="RatePlanCategory" type="def_nonempty_string"/>
-                  <xs:attribute name="RatePlanID" type="def_nonempty_string"/>
-                  <xs:attribute name="RatePlanQualifier" type="def_bool"/>
-                </xs:complexType>
-              </xs:element>
-
-            </xs:sequence>
-            <xs:attribute name="HotelCode" type="def_nonempty_string"/>
-            <xs:attribute name="HotelName" type="def_nonempty_string"/>
-          </xs:complexType>
-        </xs:element>
-
-      </xs:sequence>
-      <xs:attribute name="Version" use="required"/>
-      <xs:attribute name="TimeStamp"/>
-    </xs:complexType>
-  </xs:element>
-
-  <!-- SimplePackages & RatePlans: OTA_HotelRatePlanNotifRS -->
-
-  <xs:element name="OTA_HotelRatePlanNotifRS">
-    <xs:complexType>
-      <xs:group   ref="def_generic_response"/>
-      <xs:attribute name="Version" use="required"/>
-      <xs:attribute name="TimeStamp"/>
-    </xs:complexType>
-  </xs:element>
-
-  
+   
   <!-- ******************************************************************************* -->
   <!-- * common definition for success/advisory/warning/error responses                -->
   <!-- ******************************************************************************* -->

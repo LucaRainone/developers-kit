@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- 
-     AlpineBits 2014-04
+     AlpineBits 2017-10
      http://www.alpinebits.org/
 
      sample message file
 
      changelog:
-     v. 2015-07 2016-02-10 LengthOfStay -> Time set to 5 for SetMaxLOS
-                           BaseByGuestAmt -> AmountAfterTax corrected to be consistent with the choice of Type="7" (per person)
-     v. 2014-04        1.2 removed third example Offer element (only at most two Offer elements are allowed)
-     v. 2014-04        1.1 Description: fixed Name="Short Description" -> Name="title" and added example content
-     v. 2014-04        1.0
+     v. 2017-10 1.0 adapted for static rates
+     v. 2015-07 1.0 LengthOfStay -> Time set to 5 for SetMaxLOS
+                    BaseByGuestAmt -> AmountAfterTax corrected to be consistent with the choice of Type="7" (per person)
+     v. 2014-04 1.2 removed third example Offer element (only at most two Offer elements are allowed)
+     v. 2014-04 1.1 Description: fixed Name="Short Description" -> Name="title" and added example content
+     v. 2014-04 1.0
 -->
 
 <OTA_HotelRatePlanNotifRQ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -21,7 +22,7 @@
 
     <RatePlans HotelCode="123" HotelName="Frangart Inn">
 
-        <RatePlan RatePlanNotifType="Overlay" CurrencyCode="EUR" RatePlanCode="Rate1-4-HB">
+        <RatePlan RatePlanNotifType="New" CurrencyCode="EUR" RatePlanCode="Rate1-4-HB">
 
             <BookingRules>
 
@@ -45,11 +46,21 @@
 
             <Rates>
 
-                <Rate InvTypeCode="double" Start="2014-03-03" End="2014-03-08">
+                <!-- first in list: the static rate - values apply to every rate in the rate plan -->
 
+                <Rate RateTimeUnit="Day" UnitMultiplier="1">
                     <BaseByGuestAmts>
-                        <BaseByGuestAmt Type="7" NumberOfGuests="1" AgeQualifyingCode="10" AmountAfterTax="106"/>
-                        <BaseByGuestAmt Type="7" NumberOfGuests="2" AgeQualifyingCode="10" AmountAfterTax="96"/>
+                        <BaseByGuestAmt Type="7"/>
+                    </BaseByGuestAmts>
+                    <MealsIncluded MealPlanIndicator="true" MealPlanCodes="12"/>
+                </Rate>
+
+                <!-- following: "normal" rates ... -->
+
+                <Rate InvTypeCode="double" Start="2014-03-03" End="2014-03-08">
+                    <BaseByGuestAmts>
+                        <BaseByGuestAmt NumberOfGuests="1" AgeQualifyingCode="10" AmountAfterTax="106"/>
+                        <BaseByGuestAmt NumberOfGuests="2" AgeQualifyingCode="10" AmountAfterTax="96"/>
                     </BaseByGuestAmts>
                     <AdditionalGuestAmounts>
                         <AdditionalGuestAmount AgeQualifyingCode="10" Amount="76.8"/>
@@ -58,8 +69,6 @@
                         <AdditionalGuestAmount AgeQualifyingCode="8"  MinAge="6"  MaxAge="10" Amount="48"  />
                         <AdditionalGuestAmount AgeQualifyingCode="8"  MinAge="10" MaxAge="16" Amount="67.2"/>
                     </AdditionalGuestAmounts>
-                    <MealsIncluded MealPlanIndicator="true" MealPlanCodes="12"/>
-
                 </Rate>
 
             </Rates>
@@ -84,18 +93,14 @@
             </Supplements>
 
             <Offers>
-
                 <Offer>
-                    <Discount NightsRequired="7" NightsDiscounted="1" Percent="100" DiscountPattern="0000001"/>
+                    <OfferRules>
+                        <OfferRule>
+                            <Occupancy AgeQualifyingCode="10" MinAge="16"/>
+                            <Occupancy AgeQualifyingCode="8"/>
+                        </OfferRule>
+                    </OfferRules>
                 </Offer>
-
-                <Offer>
-                    <Discount Percent="100"/>
-                    <Guests>
-                        <Guest AgeQualifyingCode="8" MaxAge="5" FirstQualifyingPosition="1" LastQualifyingPosition="1" MinCount="1"/>
-                    </Guests>
-                </Offer> 
-
             </Offers>
 
             <Description Name="title">
@@ -109,7 +114,6 @@
                 <Text TextFormat="PlainText" Language="it">Lorem ipsum dolor sit amet.</Text>
                 <!-- more languages ... -->
             </Description>
-
 
         </RatePlan>
 
