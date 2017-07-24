@@ -14,6 +14,7 @@
 
                        GuestRequests:   OTA_ResRetrieveRS -> ReservationsList -> ... -> RatePlan (added element Commission)
                        GuestRequests:   OTA_ResRetrieveRS -> ReservationsList -> ... -> CardNumber (added attributes EncryptedValue and EncryptionMethod) 
+                       GuestRequests:   OTA_ResRetrieveRS -> ReservationsList -> ... -> RoomStay > RoomTypes (made optional)
 
                        SimplePackages section removed
 
@@ -354,24 +355,26 @@
 
                           <!-- HotelReservation > RoomStays > RoomStay > RoomTypes {0,1} -->
 
-                          <rng:element name="RoomTypes">
+                          <rng:optional>
+                            <rng:element name="RoomTypes">
 
-                            <!-- HotelReservation > RoomStays > RoomStay > RoomTypes > RoomType {1} -->
+                              <!-- HotelReservation > RoomStays > RoomStay > RoomTypes > RoomType {1} -->
 
-                            <rng:element name="RoomType">
-                              <rng:optional>
-                                <rng:attribute name="RoomTypeCode">
-                                  <rng:ref name="def_invTypeCode_string"/>
-                                </rng:attribute>
-                              </rng:optional>
-                              <rng:optional>
-                                <rng:attribute name="RoomClassificationCode">
-                                  <rng:ref name="def_int_ge0"/>
-                                </rng:attribute>
-                              </rng:optional>
+                              <rng:element name="RoomType">
+                                <rng:optional>
+                                  <rng:attribute name="RoomTypeCode">
+                                    <rng:ref name="def_invTypeCode_string"/>
+                                  </rng:attribute>
+                                </rng:optional>
+                                <rng:optional>
+                                  <rng:attribute name="RoomClassificationCode">
+                                    <rng:ref name="def_int_ge0"/>
+                                  </rng:attribute>
+                                </rng:optional>
+                              </rng:element>
+                         
                             </rng:element>
-
-                          </rng:element>
+                          </rng:optional>
 
                           <!-- HotelReservation > RoomStays > RoomStay > RatePlans {0,1} -->
 
