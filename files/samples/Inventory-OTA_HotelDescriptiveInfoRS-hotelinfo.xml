@@ -12,6 +12,7 @@
 
 <OTA_HotelDescriptiveInfoRS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                             xmlns="http://www.opentravel.org/OTA/2003/05"
+                            xsi:schemaLocation="http://www.opentravel.org/OTA/2003/05 OTA_HotelDescriptiveInfoRS.xsd"
                             Version="3.000">
 
     <Success/>
