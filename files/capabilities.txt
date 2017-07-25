@@ -21,11 +21,14 @@ explanation: for room availability notifications (FreeRooms), the server accepts
 capability: action_OTA_Read
 explanation: the server implements handling quote requests, booking reservations and cancellations (GuestRequests)
 
-capability: action_OTA_HotelRatePlanNotif
-explanation: the server implements handling package availability notifications (SimplePackages)
-
 capability: action_OTA_HotelDescriptiveContentNotif_Inventory
-explanation: the server implements handling room category information (Inventory)
+explanation: the server implements handling Inventory/Basic
+
+capability: action_OTA_HotelDescriptiveContentNotif_Info
+explanation: the server implements handling Inventory/Hotelinfo (push) - a server that implements this, must also implement Inventory/Basic
+
+capability: action_OTA_HotelDescriptiveInfo_Info
+explanation: the server implements handling Inventory/Hotelinfo (pull)
 
 capability: OTA_HotelDescriptiveContentNotif_Inventory_use_rooms
 explanation: for room category information (Inventory), the server needs information about specific rooms
@@ -33,20 +36,8 @@ explanation: for room category information (Inventory), the server needs informa
 capability: OTA_HotelDescriptiveContentNotif_Inventory_occupancy_children
 explanation: for room category information (Inventory), the server supports applying children rebates also for children below the standard occupation
 
-capability: OTA_HotelDescriptiveContentNotif_Inventory_accept_basic
-explanation: for room category information (Inventory), the server accepts the main inventory information and basic descriptions from this client
-
-capability: OTA_HotelDescriptiveContentNotif_Inventory_accept_additional
-explanation: for room category information (Inventory), the server accepts the additional descriptions from this client
-
 capability: action_OTA_HotelRatePlanNotif_RatePlans
 explanation: the server implements handling prices (RatePlans)
-
-capability: OTA_HotelRatePlanNotif_accept_MinLOS
-explanation: for prices (RatePlans), the server accepts MinLOS restrictions in booking rules
-
-capability: OTA_HotelRatePlanNotif_accept_MaxLOS
-explanation: for prices (RatePlans), the server accepts MaxLOS restrictions in booking rules
 
 capability: OTA_HotelRatePlanNotif_accept_ArrivalDOW
 explanation: for prices (RatePlans), the server accepts arrival DOW restrictions in booking rules
@@ -66,6 +57,30 @@ explanation: for prices (RatePlans) and within the same rate plan, the server ac
 capability: OTA_HotelRatePlanNotif_accept_Supplements
 explanation: for prices (RatePlans), the server accepts supplements
 
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_MinAdvancedBookingOffset
+explanation: for prices (RatePlans), the server accepts the OfferRule restriction MinAdvancedBookingOffset
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_MaxAdvancedBookingOffset
+explanation: for prices (RatePlans), the server accepts the OfferRule restriction MaxAdvancedBookingOffset
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_MinOccupancy
+explanation: for prices (RatePlans), the server accepts the OfferRule restriction MinOccupancy
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_MaxOccupancy
+explanation: for prices (RatePlans), the server accepts the OfferRule restriction MaxOccupancy
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_ArrivalDOW
+explanation: for prices (RatePlans), the server accepts the OfferRule restriction ArrivalDaysOfWeek
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_DepartureDOW
+explanation: for prices (RatePlans), the server accepts the OfferRule restriction DepartureDaysOfWeek
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_MinLOS
+explanation: for prices (RatePlans), the server accepts the OfferRule LOS restriction set by using SetMinLOS
+
+capability: OTA_HotelRatePlanNotif_accept_OfferRule_MaxLOS
+explanation: for prices (RatePlans), the server accepts the OfferRule LOS restriction set by using SetMaxLOS
+
 capability: OTA_HotelRatePlanNotif_accept_FreeNightsOffers
 explanation: for prices (RatePlans), the server accepts free nights offers
 
@@ -77,6 +92,12 @@ explanation: for prices (RatePlans), the server accepts the rate plan notif type
 
 capability: OTA_HotelRatePlanNotif_accept_RatePlanJoin
 explanation: for prices (RatePlans), the server supports grouping RatePlans with different MealPlanCodes under a single price list
+
+capability: action_OTA_HotelRatePlan_BaseRates
+explanation: the server implements handling BaseRates
+
+capability: OTA_HotelRatePlan_BaseRates_deltas
+explanation: the server supports delta information with BaseRates
 
 Notes:
 
