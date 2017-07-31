@@ -18,10 +18,10 @@
 
                        SimplePackages section removed
 
-                       Inventory has become Inventory/Basic and Inventory/HotelInfo (Push):
+                       Inventory has become Inventory/Basic (Push) and Inventory/HotelInfo (Push):
                                         OTA_HotelDescriptiveContentNotifRQ (major changes, one being that empty GuestRooms elements are now allowed by Luca Rainone)
 
-                       Inventory/HotelInfo (Pull) added
+                       Inventory/Basic (Pull) and Inventory/HotelInfo (Pull) added
  
                        RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> BookingRules -> ... -> LengthOfStay (added allowed values to attribute MinMaxMessageType)
                        RatePlans:       OTA_HotelRatePlanNotifRQ -> RatePlans -> RatePlan -> Supplements -> Supplement (added element PrerequisiteInventory)
@@ -1072,7 +1072,7 @@
 
 
       <!-- ******************************************************************************* -->
-      <!-- * Inventory/Basic and Inventory/HotelInfo (Push)                                -->
+      <!-- * Inventory/Basic (Push) and Inventory/HotelInfo (Push)                         -->
       <!-- ******************************************************************************* -->
 
       <!-- Inventory: OTA_HotelDescriptiveContentNotifRQ -->
@@ -1109,7 +1109,7 @@
 
 
       <!-- ******************************************************************************* -->
-      <!-- * Inventory/HotelInfo (Pull)                                                    -->
+      <!-- * Inventory/Basic (Pull) and Inventory/HotelInfo (Pull)                         -->
       <!-- ******************************************************************************* -->
 
       <!-- Inventory: OTA_HotelDescriptiveInfoRQ -->
