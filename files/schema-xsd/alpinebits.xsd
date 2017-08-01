@@ -1850,26 +1850,21 @@
                         <xs:element name="Supplement" maxOccurs="unbounded">
                           <xs:complexType>
                             <xs:sequence>
-
-                              <xs:element name="PrerequisiteInventory" minOccurs="0" maxOccurs="1">
-                                <xs:complexType>
-                                    <xs:attribute name="InvCode" use="required">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:pattern value="[01]{7}"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
-                                    <xs:attribute name="InvType" use="required">
-                                      <xs:simpleType>
-                                        <xs:restriction base="xs:string">
-                                          <xs:enumeration value="ALPINEBITSDOW"/>
-                                        </xs:restriction>
-                                      </xs:simpleType>
-                                    </xs:attribute>
-                                </xs:complexType>
-                              </xs:element>
-
+                              <xs:choice>
+                                <xs:element name="PrerequisiteInventory" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                      <xs:attribute name="InvCode" use="required" type="def_nonempty_string"/>
+                                      <xs:attribute name="InvType" use="required">
+                                        <xs:simpleType>
+                                          <xs:restriction base="xs:string">
+                                            <xs:enumeration value="ALPINEBITSDOW"/>
+                                            <xs:enumeration value="ROOMTYPE"/>
+                                          </xs:restriction>
+                                        </xs:simpleType>
+                                      </xs:attribute>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:choice>
                               <!-- RatePlans > RatePlan > Supplements > Supplement > Description {0,5} -->
                       
                               <xs:element name="Description" minOccurs="0" maxOccurs="5">
