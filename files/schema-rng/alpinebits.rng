@@ -2107,18 +2107,30 @@
                 <rng:element name="Supplement">
 
                   <rng:optional>
-                    <rng:element name="PrerequisiteInventory">
-                      <rng:attribute name="InvCode">
-                        <rng:data type="string">
-                          <rng:param name="pattern">[01]{7}</rng:param>
-                        </rng:data>
-                      </rng:attribute>
-                      <rng:attribute name="InvType">
-                        <rng:choice>
-                          <rng:value>ALPINEBITSDOW</rng:value>
-                        </rng:choice>
-                      </rng:attribute>
-                    </rng:element>
+                    <rng:choice>
+                      <rng:element name="PrerequisiteInventory">
+                        <rng:attribute name="InvCode">
+                          <rng:data type="string">
+                              <rng:param name="pattern">[01]{7}</rng:param>
+                            </rng:data>
+                        </rng:attribute>
+                        <rng:attribute name="InvType">
+                          <rng:choice>
+                            <rng:value>ALPINEBITSDOW</rng:value>
+                          </rng:choice>
+                        </rng:attribute>
+                      </rng:element>
+                      <rng:element name="PrerequisiteInventory">
+                        <rng:attribute name="InvCode">
+                          <rng:ref name="def_invTypeCode_string"/>
+                        </rng:attribute>
+                        <rng:attribute name="InvType">
+                          <rng:choice>
+                            <rng:value>ROOMTYPE</rng:value>
+                          </rng:choice>
+                        </rng:attribute>
+                      </rng:element>
+                    </rng:choice>
                   </rng:optional>
 
                   <!-- RatePlans > RatePlan > Supplements > Supplement > Description {0,} (actually {0,5} but Relax-NG cannot do this) -->
