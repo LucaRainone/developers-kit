@@ -18,7 +18,7 @@
     <Success/> 
 
     <RatePlans HotelCode="123" HotelName="Test Hotel">
-        <RatePlan RatePlanCode="Base">
+        <RatePlan RatePlanCode="Base" CurrencyCode="EUR">
             <Rates>
                 <Rate RateTimeUnit="Day" UnitMultiplier="1">
                     <BaseByGuestAmts>
@@ -28,13 +28,13 @@
                 </Rate>
                 <Rate Start="2016-12-29" End="2016-12-31" InvTypeCode="EZ">
                     <BaseByGuestAmts>
-                        <BaseByGuestAmt Type="7" NumberOfGuests="1"
+                        <BaseByGuestAmt NumberOfGuests="1"
                                         AmountAfterTax="130.00"/>
                     </BaseByGuestAmts>
                 </Rate>
                 <Rate Start="2016-12-29" End="2016-12-31" InvTypeCode="DZ">
                     <BaseByGuestAmts>
-                        <BaseByGuestAmt Type="7" NumberOfGuests="2"
+                        <BaseByGuestAmt NumberOfGuests="2"
                                         AmountAfterTax="180.00"/>
                     </BaseByGuestAmts>
                 </Rate>
