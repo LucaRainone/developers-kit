@@ -35,6 +35,7 @@
 
                     <RatePlans>
                         <RatePlan RatePlanCode="123456-xyz">
+                            <Commission Percent="15"/>
                             <!-- Code 1 -> All inclusive -->
                             <MealsIncluded MealPlanIndicator="true" MealPlanCodes="1"/>
                         </RatePlan>
