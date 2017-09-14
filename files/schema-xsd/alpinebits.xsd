@@ -8,6 +8,7 @@
 
      changelog:
 
+    v. 2017-10  1.1 -  RatePlans:       RatePlans > RatePlan > Offers: allow only MinLOS and MaxLOS attributes (not the forward ones too)
 
     v. 2017-10  1.0 -  FreeRooms:       OTA_HotelAvailNotifRQ -> UniqueID (added allowed value to attribute Type, by Luca Rainone)
                        FreeRooms:       OTA_HotelAvailNotifRQ -> AvailStatusMessages -> ...  -> StatusApplicationControl (added new mandatory attribute BookingThreshold)
@@ -2007,9 +2008,7 @@
                                                       <xs:simpleType>
                                                         <xs:restriction base="xs:string">
                                                           <xs:enumeration value="SetMinLOS"/>
-                                                          <xs:enumeration value="SetForwardMinStay"/>
                                                           <xs:enumeration value="SetMaxLOS"/>
-                                                          <xs:enumeration value="SetForwardMaxStay"/>
                                                           <xs:enumeration value=""/>
                                                         </xs:restriction>
                                                       </xs:simpleType>

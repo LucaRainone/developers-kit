@@ -8,6 +8,7 @@
 
      changelog:
 
+    v. 2017-10  1.1 -  RatePlans:       RatePlans > RatePlan > Offers: allow only MinLOS and MaxLOS attributes (not the forward ones too)
 
     v. 2017-10  1.0 -  FreeRooms:       OTA_HotelAvailNotifRQ -> UniqueID (added allowed value to attribute Type, by Luca Rainone)
                        FreeRooms:       OTA_HotelAvailNotifRQ -> AvailStatusMessages -> ...  -> StatusApplicationControl (added new mandatory attribute BookingThreshold)
@@ -2282,9 +2283,7 @@
                                 <rng:attribute name="MinMaxMessageType">
                                   <rng:choice>
                                     <rng:value>SetMinLOS</rng:value>
-                                    <rng:value>SetForwardMinStay</rng:value>
                                     <rng:value>SetMaxLOS</rng:value>
-                                    <rng:value>SetForwardMaxStay</rng:value>
                                   </rng:choice>
                                 </rng:attribute>
                       
