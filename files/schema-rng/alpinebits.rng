@@ -8,7 +8,7 @@
 
      changelog:
 
-    v. 2017-10  1.2 -  Inventory common type def_hoteldescriptivecontents -> FacilityInfo -> ... -> MultimediaDescription (allow one or more ImageItem elements for InfoCode="23")
+    v. 2017-10  1.3 -  Inventory common type def_hoteldescriptivecontents -> FacilityInfo -> ... -> MultimediaDescription (allow one or more ImageItem elements for InfoCode="23")
 
     v. 2017-10  1.2 -  FreeRooms:       OTA_HotelAvailNotifRQ -> AvailStatusMessages -> ...  -> StatusApplicationControl (make BookingThreshold not mandatory)
 
