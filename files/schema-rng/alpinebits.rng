@@ -8,6 +8,8 @@
 
      changelog:
 
+    v. 2017-10  1.2 -  Inventory common type def_hoteldescriptivecontents -> FacilityInfo -> ... -> MultimediaDescription (allow one or more ImageItem elements for InfoCode="23")
+
     v. 2017-10  1.2 -  FreeRooms:       OTA_HotelAvailNotifRQ -> AvailStatusMessages -> ...  -> StatusApplicationControl (make BookingThreshold not mandatory)
 
     v. 2017-10  1.1 -  RatePlans:       RatePlans > RatePlan > Offers: allow only MinLOS and MaxLOS attributes (not the forward ones too)
@@ -1515,39 +1517,43 @@
        
                                   <rng:optional>
                                     <rng:element name="ImageItems">
-                                      <rng:element name="ImageItem">
-                                        <rng:element name="ImageFormat">
-                                          <rng:element name="URL">
-                                            <rng:ref name="def_url_string"/>
+
+                                      <rng:oneOrMore>
+                                        <rng:element name="ImageItem">
+                                          <rng:element name="ImageFormat">
+                                            <rng:element name="URL">
+                                              <rng:ref name="def_url_string"/>
+                                            </rng:element>
+                                            <rng:optional>
+                                              <rng:attribute name="CopyrightNotice">
+                                                <rng:ref name="def_nonempty_string"/>
+                                              </rng:attribute>
+                                            </rng:optional>
                                           </rng:element>
-                                          <rng:optional>
-                                            <rng:attribute name="CopyrightNotice">
+                                      
+                                          <rng:zeroOrMore>
+                                            <rng:element name="Description">
                                               <rng:ref name="def_nonempty_string"/>
-                                            </rng:attribute>
-                                          </rng:optional>
+                                              <rng:attribute name="TextFormat">
+                                                <rng:choice>
+                                                  <rng:value>PlainText</rng:value>
+                                                </rng:choice>
+                                              </rng:attribute>
+                                              <rng:attribute name="Language">
+                                                <rng:data type="language">
+                                                  <rng:param name="pattern">[a-z][a-z]</rng:param>
+                                                </rng:data>
+                                              </rng:attribute>
+                                            </rng:element>
+                                          </rng:zeroOrMore>
+                                      
+                                          <rng:attribute name="Category">
+                                            <rng:ref name="def_int_gt0"/>
+                                          </rng:attribute>
+
                                         </rng:element>
-                                
-                                        <rng:zeroOrMore>
-                                          <rng:element name="Description">
-                                            <rng:ref name="def_nonempty_string"/>
-                                            <rng:attribute name="TextFormat">
-                                              <rng:choice>
-                                                <rng:value>PlainText</rng:value>
-                                              </rng:choice>
-                                            </rng:attribute>
-                                            <rng:attribute name="Language">
-                                              <rng:data type="language">
-                                                <rng:param name="pattern">[a-z][a-z]</rng:param>
-                                              </rng:data>
-                                            </rng:attribute>
-                                          </rng:element>
-                                        </rng:zeroOrMore>
-                                
-                                        <rng:attribute name="Category">
-                                          <rng:ref name="def_int_gt0"/>
-                                        </rng:attribute>
-                                
-                                      </rng:element>
+                                      </rng:oneOrMore>
+
                                     </rng:element>
                                   </rng:optional>
        
