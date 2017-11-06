@@ -1,108 +1,96 @@
 Capabilities specified by AlpineBits:
 
-capability: action_getVersion
+capability:  action_getVersion
 explanation: the server implements the getVersion action
 
-capability: action_getCapabilities
+capability:  action_getCapabilities
 explanation: the server implements the getCapabilities action
 
-capability: action_OTA_HotelAvailNotif
+capability:  action_OTA_HotelAvailNotif
 explanation: the server implements handling room availability notifications (FreeRooms)
 
-capability: OTA_HotelAvailNotif_accept_rooms
+capability:  OTA_HotelAvailNotif_accept_rooms
 explanation: for room availability notifications (FreeRooms), the server accepts booking limits for specific rooms
 
-capability: OTA_HotelAvailNotif_accept_categories
+capability:  OTA_HotelAvailNotif_accept_categories
 explanation: for room availability notifications (FreeRooms), the server accepts booking limits for categories of rooms
 
-capability: OTA_HotelAvailNotif_accept_deltas
+capability:  OTA_HotelAvailNotif_accept_BookingThreshold
+explanation: for room availability notifications (FreeRooms), the server accepts the number of rooms that are not bookable 
+
+capability:  OTA_HotelAvailNotif_accept_deltas
 explanation: for room availability notifications (FreeRooms), the server accepts partial information (deltas)
 
-capability: action_OTA_Read
+capability:  action_OTA_Read
 explanation: the server implements handling quote requests, booking reservations and cancellations (GuestRequests)
 
-capability: action_OTA_HotelDescriptiveContentNotif_Inventory
-explanation: the server implements handling Inventory/Basic
+capability:  action_OTA_HotelDescriptiveContentNotif_Inventory
+explanation: the server implements handling Inventory/Basic (push)
 
-capability: action_OTA_HotelDescriptiveContentNotif_Info
-explanation: the server implements handling Inventory/Hotelinfo (push) - a server that implements this, must also implement Inventory/Basic
+capability:  action_OTA_HotelDescriptiveInfo_Inventory
+explanation: the server implements handling Inventory/Basic (pull)
 
-capability: action_OTA_HotelDescriptiveInfo_Info
+capability:  action_OTA_HotelDescriptiveContentNotif_Info
+explanation: the server implements handling Inventory/Hotelinfo (push) - a server that implements this, must also implement Inventory/Basic (push)
+
+capability:  action_OTA_HotelDescriptiveInfo_Info
 explanation: the server implements handling Inventory/Hotelinfo (pull)
 
-capability: OTA_HotelDescriptiveContentNotif_Inventory_use_rooms
+capability:  OTA_HotelDescriptiveContentNotif_Inventory_use_rooms
 explanation: for room category information (Inventory), the server needs information about specific rooms
 
-capability: OTA_HotelDescriptiveContentNotif_Inventory_occupancy_children
+capability:  OTA_HotelDescriptiveContentNotif_Inventory_occupancy_children
 explanation: for room category information (Inventory), the server supports applying children rebates also for children below the standard occupation
 
-capability: action_OTA_HotelRatePlanNotif_RatePlans
+capability:  action_OTA_HotelRatePlanNotif_RatePlans
 explanation: the server implements handling prices (RatePlans)
 
-capability: OTA_HotelRatePlanNotif_accept_ArrivalDOW
+capability:  OTA_HotelRatePlanNotif_accept_ArrivalDOW
 explanation: for prices (RatePlans), the server accepts arrival DOW restrictions in booking rules
 
-capability: OTA_HotelRatePlanNotif_accept_DepartureDOW
+capability:  OTA_HotelRatePlanNotif_accept_DepartureDOW
 explanation: for prices (RatePlans), the server accepts departure DOW restrictions in booking rules
 
-capability: OTA_HotelRatePlanNotif_accept_RatePlan_BookingRule
-explanation: for prices (RatePlans), the server accepts "generic" booking rules
+capability:  OTA_HotelRatePlanNotif_accept_RatePlan_BookingRule
+explanation: for prices (RatePlans), the server accepts “generic” booking rules
 
-capability: OTA_HotelRatePlanNotif_accept_RatePlan_RoomType_BookingRule
-explanation: for prices (RatePlans), the server accepts "specific" booking rules for the given room types
+capability:  OTA_HotelRatePlanNotif_accept_RatePlan_RoomType_BookingRule
+explanation: for prices (RatePlans), the server accepts “specific” booking rules for the given room types
 
-capability: OTA_HotelRatePlanNotif_accept_RatePlan_mixed_BookingRule
-explanation: for prices (RatePlans) and within the same rate plan, the server accepts both "specific" and "generic" booking rules. Both "generic" and "specific" rules capabilities must still be announced by the server.
+capability:  OTA_HotelRatePlanNotif_accept_RatePlan_mixed_BookingRule
+explanation: for prices (RatePlans) and within the same rate plan, the server accepts both “specific” and “generic” booking rules. Both "generic" and "specific" rules capabilities must still be announced by the server.
 
-capability: OTA_HotelRatePlanNotif_accept_Supplements
+capability:  OTA_HotelRatePlanNotif_accept_Supplements
 explanation: for prices (RatePlans), the server accepts supplements
 
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_MinAdvancedBookingOffset
-explanation: for prices (RatePlans), the server accepts the OfferRule restriction MinAdvancedBookingOffset
+capability:  OTA_HotelRatePlanNotif_accept_OfferRule_BookingOffset
+explanation: for prices (RatePlans), the server accepts the OfferRule restrictions MinAdvancedBookingOffset and MaxAdvancedBookingOffset
 
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_MaxAdvancedBookingOffset
-explanation: for prices (RatePlans), the server accepts the OfferRule restriction MaxAdvancedBookingOffset
+capability:  OTA_HotelRatePlanNotif_accept_OfferRule_DOWLOS
+explanation: for prices (RatePlans), the server accepts the OfferRule restrictions ArrivalDaysOfWeek, DepartureDaysOfWeek, SetMinLOS and SetMaxLOS
 
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_MinOccupancy
-explanation: for prices (RatePlans), the server accepts the OfferRule restriction MinOccupancy
-
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_MaxOccupancy
-explanation: for prices (RatePlans), the server accepts the OfferRule restriction MaxOccupancy
-
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_ArrivalDOW
-explanation: for prices (RatePlans), the server accepts the OfferRule restriction ArrivalDaysOfWeek
-
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_DepartureDOW
-explanation: for prices (RatePlans), the server accepts the OfferRule restriction DepartureDaysOfWeek
-
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_MinLOS
-explanation: for prices (RatePlans), the server accepts the OfferRule LOS restriction set by using SetMinLOS
-
-capability: OTA_HotelRatePlanNotif_accept_OfferRule_MaxLOS
-explanation: for prices (RatePlans), the server accepts the OfferRule LOS restriction set by using SetMaxLOS
-
-capability: OTA_HotelRatePlanNotif_accept_FreeNightsOffers
+capability:  OTA_HotelRatePlanNotif_accept_FreeNightsOffers
 explanation: for prices (RatePlans), the server accepts free nights offers
 
-capability: OTA_HotelRatePlanNotif_accept_FamilyOffers
+capability:  OTA_HotelRatePlanNotif_accept_FamilyOffers
 explanation: for prices (RatePlans), the server accepts family offers
 
-capability: OTA_HotelRatePlanNotif_accept_overlay
+capability:  OTA_HotelRatePlanNotif_accept_overlay
 explanation: for prices (RatePlans), the server accepts the rate plan notif type value Overlay
 
-capability: OTA_HotelRatePlanNotif_accept_RatePlanJoin
+capability:  OTA_HotelRatePlanNotif_accept_RatePlanJoin
 explanation: for prices (RatePlans), the server supports grouping RatePlans with different MealPlanCodes under a single price list
 
-capability: action_OTA_HotelRatePlan_BaseRates
+capability:  action_OTA_HotelRatePlan_BaseRates
 explanation: the server implements handling BaseRates
 
-capability: OTA_HotelRatePlan_BaseRates_deltas
+capability:  OTA_HotelRatePlan_BaseRates_deltas
 explanation: the server supports delta information with BaseRates
+
 
 Notes:
 
 This file is meant to provide the plain text capabilities strings, to prevent possible copy-and-paste errors from the PDF document.
 The complete list of the capabilities may be extracted from this file by using a command similar to
-$grep "^capability:" capabilities.txt | cut -d" " -f 2
-on a linux system.
-
+grep "^capability:" capabilities.txt | cut -d " " -f 3
+on a unix-like system.
