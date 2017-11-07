@@ -19,7 +19,7 @@
 
     <HotelDescriptiveContents>
 
-        <HotelDescriptiveContent HotelCode="12345" HotelName="Hotel AlpineBits Spa Resort" HotelCityCode="A007">
+        <HotelDescriptiveContent HotelCode="123" HotelName="Frangart Inn" HotelCityCode="A007">
 
             <!-- HotelInfo - see OTA code table for status codes (HST) -->
 

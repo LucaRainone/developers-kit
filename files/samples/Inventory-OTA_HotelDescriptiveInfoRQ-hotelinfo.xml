@@ -16,9 +16,7 @@
                             Version="3.000">
 
     <HotelDescriptiveInfos>
-        <HotelDescriptiveInfo HotelCode="12345" HotelName="Hotel AlpineBits Spa Resort"/>
+        <HotelDescriptiveInfo HotelCode="123" HotelName="Frangart Inn"/>
     </HotelDescriptiveInfos>
 
 </OTA_HotelDescriptiveInfoRQ>
-
-
