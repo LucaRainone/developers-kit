@@ -17,7 +17,7 @@
 
     <Success/> 
 
-    <RatePlans HotelCode="123" HotelName="Test Hotel">
+    <RatePlans HotelCode="123" HotelName="Frangart Inn">
         <RatePlan RatePlanCode="Base" CurrencyCode="EUR">
             <Rates>
                 <Rate RateTimeUnit="Day" UnitMultiplier="1">
